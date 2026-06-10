@@ -1,0 +1,327 @@
+{
+  "_meta": {
+    "description": "Static AWS On-Demand pricing database for terraform-cost-predictor",
+    "currency": "USD",
+    "region": "us-east-1",
+    "last_updated": "2025-01-01",
+    "note": "Prices are approximate monthly costs. Refresh with: cost-predict update-prices"
+  },
+  "aws_instance": {
+    "_doc": "EC2 instance On-Demand Linux pricing (us-east-1), monthly = hourly * 730",
+    "_key": "instance_type",
+    "_unit": "per_month",
+    "t2.nano":       { "hourly": 0.0058,  "monthly": 4.23  },
+    "t2.micro":      { "hourly": 0.0116,  "monthly": 8.47  },
+    "t2.small":      { "hourly": 0.023,   "monthly": 16.79 },
+    "t2.medium":     { "hourly": 0.0464,  "monthly": 33.87 },
+    "t2.large":      { "hourly": 0.0928,  "monthly": 67.74 },
+    "t2.xlarge":     { "hourly": 0.1856,  "monthly": 135.49 },
+    "t2.2xlarge":    { "hourly": 0.3712,  "monthly": 270.98 },
+    "t3.nano":       { "hourly": 0.0052,  "monthly": 3.80  },
+    "t3.micro":      { "hourly": 0.0104,  "monthly": 7.59  },
+    "t3.small":      { "hourly": 0.0208,  "monthly": 15.18 },
+    "t3.medium":     { "hourly": 0.0416,  "monthly": 30.37 },
+    "t3.large":      { "hourly": 0.0832,  "monthly": 60.74 },
+    "t3.xlarge":     { "hourly": 0.1664,  "monthly": 121.47 },
+    "t3.2xlarge":    { "hourly": 0.3328,  "monthly": 242.94 },
+    "t3a.nano":      { "hourly": 0.0047,  "monthly": 3.43  },
+    "t3a.micro":     { "hourly": 0.0094,  "monthly": 6.86  },
+    "t3a.small":     { "hourly": 0.0188,  "monthly": 13.72 },
+    "t3a.medium":    { "hourly": 0.0376,  "monthly": 27.45 },
+    "t3a.large":     { "hourly": 0.0752,  "monthly": 54.90 },
+    "t3a.xlarge":    { "hourly": 0.1504,  "monthly": 109.79 },
+    "t3a.2xlarge":   { "hourly": 0.3008,  "monthly": 219.58 },
+    "m5.large":      { "hourly": 0.096,   "monthly": 70.08 },
+    "m5.xlarge":     { "hourly": 0.192,   "monthly": 140.16 },
+    "m5.2xlarge":    { "hourly": 0.384,   "monthly": 280.32 },
+    "m5.4xlarge":    { "hourly": 0.768,   "monthly": 560.64 },
+    "m5.8xlarge":    { "hourly": 1.536,   "monthly": 1121.28 },
+    "m5.12xlarge":   { "hourly": 2.304,   "monthly": 1681.92 },
+    "m5.16xlarge":   { "hourly": 3.072,   "monthly": 2242.56 },
+    "m5.24xlarge":   { "hourly": 4.608,   "monthly": 3363.84 },
+    "m5a.large":     { "hourly": 0.086,   "monthly": 62.78 },
+    "m5a.xlarge":    { "hourly": 0.172,   "monthly": 125.56 },
+    "m5a.2xlarge":   { "hourly": 0.344,   "monthly": 251.12 },
+    "m5a.4xlarge":   { "hourly": 0.688,   "monthly": 502.24 },
+    "m6i.large":     { "hourly": 0.096,   "monthly": 70.08 },
+    "m6i.xlarge":    { "hourly": 0.192,   "monthly": 140.16 },
+    "m6i.2xlarge":   { "hourly": 0.384,   "monthly": 280.32 },
+    "m6i.4xlarge":   { "hourly": 0.768,   "monthly": 560.64 },
+    "m6a.large":     { "hourly": 0.0864,  "monthly": 63.07 },
+    "m6a.xlarge":    { "hourly": 0.1728,  "monthly": 126.14 },
+    "m6a.2xlarge":   { "hourly": 0.3456,  "monthly": 252.29 },
+    "c5.large":      { "hourly": 0.085,   "monthly": 62.05 },
+    "c5.xlarge":     { "hourly": 0.17,    "monthly": 124.10 },
+    "c5.2xlarge":    { "hourly": 0.34,    "monthly": 248.20 },
+    "c5.4xlarge":    { "hourly": 0.68,    "monthly": 496.40 },
+    "c5.9xlarge":    { "hourly": 1.53,    "monthly": 1116.90 },
+    "c5.18xlarge":   { "hourly": 3.06,    "monthly": 2233.80 },
+    "c6i.large":     { "hourly": 0.085,   "monthly": 62.05 },
+    "c6i.xlarge":    { "hourly": 0.17,    "monthly": 124.10 },
+    "c6i.2xlarge":   { "hourly": 0.34,    "monthly": 248.20 },
+    "c6i.4xlarge":   { "hourly": 0.68,    "monthly": 496.40 },
+    "r5.large":      { "hourly": 0.126,   "monthly": 91.98 },
+    "r5.xlarge":     { "hourly": 0.252,   "monthly": 183.96 },
+    "r5.2xlarge":    { "hourly": 0.504,   "monthly": 367.92 },
+    "r5.4xlarge":    { "hourly": 1.008,   "monthly": 735.84 },
+    "r5.8xlarge":    { "hourly": 2.016,   "monthly": 1471.68 },
+    "r6i.large":     { "hourly": 0.126,   "monthly": 91.98 },
+    "r6i.xlarge":    { "hourly": 0.252,   "monthly": 183.96 },
+    "r6i.2xlarge":   { "hourly": 0.504,   "monthly": 367.92 },
+    "p3.2xlarge":    { "hourly": 3.06,    "monthly": 2233.80 },
+    "p3.8xlarge":    { "hourly": 12.24,   "monthly": 8935.20 },
+    "g4dn.xlarge":   { "hourly": 0.526,   "monthly": 383.98 },
+    "g4dn.2xlarge":  { "hourly": 0.752,   "monthly": 548.96 },
+    "g4dn.4xlarge":  { "hourly": 1.204,   "monthly": 878.92 },
+    "_default":      { "hourly": 0.05,    "monthly": 36.50  }
+  },
+  "aws_db_instance": {
+    "_doc": "RDS instance pricing (us-east-1) Single-AZ, per month",
+    "_key": "instance_class",
+    "_unit": "per_month",
+    "db.t3.micro":   { "hourly": 0.017,   "monthly": 12.41  },
+    "db.t3.small":   { "hourly": 0.034,   "monthly": 24.82  },
+    "db.t3.medium":  { "hourly": 0.068,   "monthly": 49.64  },
+    "db.t3.large":   { "hourly": 0.136,   "monthly": 99.28  },
+    "db.t3.xlarge":  { "hourly": 0.272,   "monthly": 198.56 },
+    "db.t3.2xlarge": { "hourly": 0.544,   "monthly": 397.12 },
+    "db.t4g.micro":  { "hourly": 0.016,   "monthly": 11.68  },
+    "db.t4g.small":  { "hourly": 0.032,   "monthly": 23.36  },
+    "db.t4g.medium": { "hourly": 0.065,   "monthly": 47.45  },
+    "db.m5.large":   { "hourly": 0.171,   "monthly": 124.83 },
+    "db.m5.xlarge":  { "hourly": 0.342,   "monthly": 249.66 },
+    "db.m5.2xlarge": { "hourly": 0.684,   "monthly": 499.32 },
+    "db.m5.4xlarge": { "hourly": 1.368,   "monthly": 998.64 },
+    "db.m6g.large":  { "hourly": 0.162,   "monthly": 118.26 },
+    "db.m6g.xlarge": { "hourly": 0.324,   "monthly": 236.52 },
+    "db.r5.large":   { "hourly": 0.24,    "monthly": 175.20 },
+    "db.r5.xlarge":  { "hourly": 0.48,    "monthly": 350.40 },
+    "db.r5.2xlarge": { "hourly": 0.96,    "monthly": 700.80 },
+    "db.r6g.large":  { "hourly": 0.229,   "monthly": 167.17 },
+    "_default":      { "hourly": 0.017,   "monthly": 12.41  },
+    "_storage_gp2_per_gb_month": 0.115,
+    "_storage_gp3_per_gb_month": 0.115,
+    "_storage_io1_per_gb_month": 0.125,
+    "_iops_per_month": 0.10,
+    "_multi_az_multiplier": 2.0
+  },
+  "aws_rds_cluster": {
+    "_doc": "Aurora cluster pricing (us-east-1)",
+    "_key": "engine",
+    "_unit": "per_month",
+    "aurora-mysql": {
+      "_instance_pricing": {
+        "db.t3.medium":  { "hourly": 0.082,  "monthly": 59.86  },
+        "db.r5.large":   { "hourly": 0.29,   "monthly": 211.70 },
+        "db.r5.xlarge":  { "hourly": 0.58,   "monthly": 423.40 },
+        "db.r6g.large":  { "hourly": 0.26,   "monthly": 189.80 },
+        "_default":      { "hourly": 0.082,  "monthly": 59.86  }
+      },
+      "_storage_per_gb_month": 0.10,
+      "_io_per_million": 0.20
+    },
+    "aurora-postgresql": {
+      "_instance_pricing": {
+        "db.t3.medium":  { "hourly": 0.082,  "monthly": 59.86  },
+        "db.r5.large":   { "hourly": 0.29,   "monthly": 211.70 },
+        "db.r5.xlarge":  { "hourly": 0.58,   "monthly": 423.40 },
+        "_default":      { "hourly": 0.082,  "monthly": 59.86  }
+      },
+      "_storage_per_gb_month": 0.10,
+      "_io_per_million": 0.20
+    }
+  },
+  "aws_lb": {
+    "_doc": "Application/Network Load Balancer pricing",
+    "_unit": "per_month",
+    "application": {
+      "hourly": 0.008,
+      "monthly": 5.84,
+      "lcu_per_hour": 0.008,
+      "estimated_lcu_per_hour": 1.0,
+      "estimated_monthly": 18.0
+    },
+    "network": {
+      "hourly": 0.008,
+      "monthly": 5.84,
+      "lcu_per_hour": 0.006,
+      "estimated_lcu_per_hour": 1.0,
+      "estimated_monthly": 18.0
+    },
+    "gateway": {
+      "hourly": 0.008,
+      "monthly": 5.84,
+      "estimated_monthly": 18.0
+    },
+    "_default": {
+      "hourly": 0.008,
+      "monthly": 5.84,
+      "estimated_monthly": 18.0
+    }
+  },
+  "aws_alb": {
+    "_doc": "Alias for aws_lb (Application Load Balancer)",
+    "_ref": "aws_lb"
+  },
+  "aws_nat_gateway": {
+    "_doc": "NAT Gateway pricing — hourly + data processing",
+    "_unit": "per_month",
+    "hourly": 0.045,
+    "monthly_base": 32.85,
+    "data_processing_per_gb": 0.045,
+    "estimated_data_gb_per_month": 100,
+    "estimated_monthly": 32.85
+  },
+  "aws_ebs_volume": {
+    "_doc": "EBS volume pricing per GB-month",
+    "_key": "type",
+    "_unit": "per_gb_per_month",
+    "gp2":  { "per_gb_month": 0.10,  "per_iops_month": null  },
+    "gp3":  { "per_gb_month": 0.08,  "per_iops_month": 0.005, "base_iops": 3000 },
+    "io1":  { "per_gb_month": 0.125, "per_iops_month": 0.065  },
+    "io2":  { "per_gb_month": 0.125, "per_iops_month": 0.065  },
+    "st1":  { "per_gb_month": 0.045, "per_iops_month": null   },
+    "sc1":  { "per_gb_month": 0.025, "per_iops_month": null   },
+    "standard": { "per_gb_month": 0.05, "per_iops_month": 0.05 },
+    "_default": { "per_gb_month": 0.10, "per_iops_month": null }
+  },
+  "aws_s3_bucket": {
+    "_doc": "S3 Standard storage pricing",
+    "_unit": "per_month",
+    "standard": {
+      "per_gb_month_first_50tb": 0.023,
+      "per_gb_month_next_450tb": 0.022,
+      "put_request_per_1000": 0.005,
+      "get_request_per_1000": 0.0004
+    },
+    "estimated_monthly": 2.30,
+    "note": "Estimate assumes 100GB storage in Standard tier"
+  },
+  "aws_elasticache_cluster": {
+    "_doc": "ElastiCache node pricing (us-east-1)",
+    "_key": "node_type",
+    "_unit": "per_month",
+    "cache.t3.micro":   { "hourly": 0.017, "monthly": 12.41 },
+    "cache.t3.small":   { "hourly": 0.034, "monthly": 24.82 },
+    "cache.t3.medium":  { "hourly": 0.067, "monthly": 48.91 },
+    "cache.m6g.large":  { "hourly": 0.149, "monthly": 108.77 },
+    "cache.m6g.xlarge": { "hourly": 0.298, "monthly": 217.54 },
+    "cache.r6g.large":  { "hourly": 0.182, "monthly": 132.86 },
+    "cache.r6g.xlarge": { "hourly": 0.364, "monthly": 265.72 },
+    "_default":         { "hourly": 0.017, "monthly": 12.41 }
+  },
+  "aws_elasticache_replication_group": {
+    "_doc": "ElastiCache Replication Group (Redis) pricing",
+    "_ref": "aws_elasticache_cluster",
+    "_node_count_multiplier": true
+  },
+  "aws_lambda_function": {
+    "_doc": "Lambda pricing — per request + GB-second compute",
+    "_unit": "per_month",
+    "request_per_million": 0.20,
+    "compute_per_gb_second": 0.0000166667,
+    "free_tier_requests": 1000000,
+    "free_tier_gb_seconds": 400000,
+    "estimated_monthly_low": 0.50,
+    "estimated_monthly_medium": 5.00,
+    "estimated_monthly_high": 50.00,
+    "default_estimated_monthly": 5.00,
+    "note": "Estimate assumes 1M requests/month with 256MB, 200ms avg duration"
+  },
+  "aws_eks_cluster": {
+    "_doc": "EKS cluster control plane pricing",
+    "_unit": "per_month",
+    "hourly": 0.10,
+    "monthly": 73.00,
+    "note": "Worker nodes billed separately as EC2 instances"
+  },
+  "aws_cloudfront_distribution": {
+    "_doc": "CloudFront pricing (North America traffic)",
+    "_unit": "per_month",
+    "per_gb_data_transfer": 0.0085,
+    "per_10000_https_requests": 0.01,
+    "estimated_monthly": 10.00,
+    "note": "Estimate assumes 100GB/month data transfer"
+  },
+  "aws_elasticsearch_domain": {
+    "_doc": "OpenSearch/Elasticsearch pricing",
+    "_key": "instance_type",
+    "_unit": "per_month",
+    "t3.small.search":    { "hourly": 0.036, "monthly": 26.28 },
+    "m5.large.search":    { "hourly": 0.142, "monthly": 103.66 },
+    "m5.xlarge.search":   { "hourly": 0.284, "monthly": 207.32 },
+    "r5.large.search":    { "hourly": 0.168, "monthly": 122.64 },
+    "_default":           { "hourly": 0.036, "monthly": 26.28 },
+    "_storage_per_gb_month": 0.135
+  },
+  "aws_opensearch_domain": {
+    "_doc": "Alias for aws_elasticsearch_domain",
+    "_ref": "aws_elasticsearch_domain"
+  },
+  "aws_kinesis_stream": {
+    "_doc": "Kinesis Data Streams pricing",
+    "_unit": "per_month",
+    "shard_per_hour": 0.015,
+    "put_payload_per_million": 0.014,
+    "estimated_monthly_per_shard": 10.95,
+    "note": "Estimate for 1 shard, minimal data"
+  },
+  "aws_sqs_queue": {
+    "_doc": "SQS pricing",
+    "_unit": "per_month",
+    "per_million_requests_standard": 0.40,
+    "per_million_requests_fifo": 0.50,
+    "free_tier_requests": 1000000,
+    "estimated_monthly": 0.40,
+    "note": "Estimate assumes 1M requests/month"
+  },
+  "aws_sns_topic": {
+    "_doc": "SNS pricing",
+    "_unit": "per_month",
+    "per_million_publishes": 0.50,
+    "per_million_http_deliveries": 0.06,
+    "estimated_monthly": 1.00,
+    "note": "Estimate assumes 1M publishes/month"
+  },
+  "aws_api_gateway_rest_api": {
+    "_doc": "API Gateway REST API pricing",
+    "_unit": "per_month",
+    "per_million_api_calls": 3.50,
+    "per_gb_data_transfer": 0.09,
+    "estimated_monthly": 3.50,
+    "note": "Estimate assumes 1M API calls/month"
+  },
+  "aws_api_gateway_v2_api": {
+    "_doc": "API Gateway HTTP API pricing",
+    "_unit": "per_month",
+    "per_million_api_calls": 1.00,
+    "per_gb_data_transfer": 0.09,
+    "estimated_monthly": 1.00,
+    "note": "Estimate assumes 1M API calls/month (HTTP API is cheaper)"
+  },
+  "aws_wafv2_web_acl": {
+    "_doc": "WAFv2 pricing",
+    "_unit": "per_month",
+    "web_acl_per_month": 5.00,
+    "per_million_requests": 0.60,
+    "per_rule_per_month": 1.00,
+    "estimated_monthly": 10.00,
+    "note": "Estimate assumes 5 rules, 1M requests/month"
+  },
+  "aws_route53_zone": {
+    "_doc": "Route53 hosted zone pricing",
+    "_unit": "per_month",
+    "hosted_zone_per_month": 0.50,
+    "per_million_queries_first_billion": 0.40,
+    "estimated_monthly": 0.50,
+    "note": "Base price per hosted zone, queries billed separately"
+  },
+  "aws_ecs_service": {
+    "_doc": "ECS with Fargate pricing",
+    "_unit": "per_month",
+    "fargate_vcpu_per_hour": 0.04048,
+    "fargate_gb_per_hour": 0.004445,
+    "estimated_monthly": 14.26,
+    "note": "Estimate assumes 0.25 vCPU, 0.5GB RAM running 24/7"
+  }
+}

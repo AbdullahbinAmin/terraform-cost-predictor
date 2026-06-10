@@ -1,0 +1,27 @@
+# Budget Policy Configuration
+# Used with: cost-predict predict plan.json --budget budget.yaml
+
+budget:
+  # Global monthly cost limit in USD
+  monthly_limit: 300
+
+  # Currency (currently only USD supported)
+  currency: USD
+
+  # Alert at this fraction of the limit (warn, don't block)
+  # 0.8 = warn when cost is 80% of limit
+  alert_threshold: 0.8
+
+  # Per-environment limits (override global limit)
+  environments:
+    production:
+      monthly_limit: 500
+      alert_threshold: 0.85
+
+    staging:
+      monthly_limit: 150
+      alert_threshold: 0.75
+
+    development:
+      monthly_limit: 50
+      alert_threshold: 0.9

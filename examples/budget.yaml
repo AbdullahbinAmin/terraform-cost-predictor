@@ -1,0 +1,15 @@
+# Budget Policy Configuration — Example
+# Copy to your project and customize.
+
+budget:
+  monthly_limit: 150
+  currency: USD
+  alert_threshold: 0.8
+
+  environments:
+    production:
+      monthly_limit: 500
+    staging:
+      monthly_limit: 150
+    development:
+      monthly_limit: 50

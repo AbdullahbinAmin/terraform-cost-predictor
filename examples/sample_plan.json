@@ -1,0 +1,287 @@
+{
+  "format_version": "1.1",
+  "terraform_version": "1.6.4",
+  "variables": {},
+  "planned_values": {
+    "root_module": {
+      "resources": []
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_instance.web_server",
+      "module_address": "",
+      "type": "aws_instance",
+      "name": "web_server",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "instance_type": "t3.medium",
+          "ami": "ami-0c55b159cbfafe1f0",
+          "tags": {
+            "Name": "web-server",
+            "Environment": "production"
+          },
+          "root_block_device": [
+            {
+              "volume_type": "gp3",
+              "volume_size": 30,
+              "delete_on_termination": true
+            }
+          ]
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_instance.worker",
+      "module_address": "",
+      "type": "aws_instance",
+      "name": "worker",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "instance_type": "t3.small",
+          "ami": "ami-0c55b159cbfafe1f0",
+          "tags": {
+            "Name": "worker",
+            "Environment": "production"
+          },
+          "root_block_device": [
+            {
+              "volume_type": "gp2",
+              "volume_size": 20
+            }
+          ]
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_db_instance.main_postgres",
+      "module_address": "",
+      "type": "aws_db_instance",
+      "name": "main_postgres",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "instance_class": "db.t3.micro",
+          "engine": "postgres",
+          "engine_version": "15.3",
+          "allocated_storage": 20,
+          "storage_type": "gp2",
+          "multi_az": false,
+          "identifier": "main-postgres",
+          "tags": {
+            "Name": "main-db"
+          }
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_lb.application_lb",
+      "module_address": "",
+      "type": "aws_lb",
+      "name": "application_lb",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "load_balancer_type": "application",
+          "internal": false,
+          "name": "app-lb",
+          "tags": {
+            "Environment": "production"
+          }
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_nat_gateway.main",
+      "module_address": "",
+      "type": "aws_nat_gateway",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "tags": {
+            "Name": "main-nat-gw"
+          }
+        },
+        "after_unknown": {
+          "id": true,
+          "allocation_id": true,
+          "subnet_id": true
+        }
+      }
+    },
+    {
+      "address": "aws_ebs_volume.data_disk",
+      "module_address": "",
+      "type": "aws_ebs_volume",
+      "name": "data_disk",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "type": "gp3",
+          "size": 100,
+          "availability_zone": "us-east-1a",
+          "tags": {
+            "Name": "data-disk"
+          }
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_s3_bucket.static_assets",
+      "module_address": "",
+      "type": "aws_s3_bucket",
+      "name": "static_assets",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "bucket": "my-app-static-assets-2025",
+          "tags": {
+            "Environment": "production"
+          }
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_elasticache_cluster.session_cache",
+      "module_address": "",
+      "type": "aws_elasticache_cluster",
+      "name": "session_cache",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "cluster_id": "session-cache",
+          "engine": "redis",
+          "node_type": "cache.t3.medium",
+          "num_cache_nodes": 1,
+          "parameter_group_name": "default.redis7"
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_lambda_function.image_processor",
+      "module_address": "",
+      "type": "aws_lambda_function",
+      "name": "image_processor",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "function_name": "image-processor",
+          "runtime": "python3.11",
+          "memory_size": 512,
+          "timeout": 30,
+          "tags": {
+            "Environment": "production"
+          }
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_route53_zone.primary",
+      "module_address": "",
+      "type": "aws_route53_zone",
+      "name": "primary",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "example.com",
+          "tags": {}
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_sqs_queue.job_queue",
+      "module_address": "",
+      "type": "aws_sqs_queue",
+      "name": "job_queue",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "job-processing-queue",
+          "fifo_queue": false,
+          "message_retention_seconds": 86400
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_security_group.web_sg",
+      "module_address": "",
+      "type": "aws_security_group",
+      "name": "web_sg",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "name": "web-sg",
+          "description": "Security group for web servers",
+          "vpc_id": "(computed)"
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_vpc.main",
+      "module_address": "",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["no-op"],
+        "before": {
+          "cidr_block": "10.0.0.0/16"
+        },
+        "after": {
+          "cidr_block": "10.0.0.0/16"
+        },
+        "after_unknown": {}
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "expressions": {
+          "region": {
+            "constant_value": "us-east-1"
+          }
+        }
+      }
+    }
+  }
+}
