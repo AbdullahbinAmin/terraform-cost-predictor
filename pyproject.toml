@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "terraform-cost-predictor"
@@ -44,10 +44,10 @@ dev = [
 cost-predict = "cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/your-org/terraform-cost-predictor"
-Repository = "https://github.com/your-org/terraform-cost-predictor"
-Issues = "https://github.com/your-org/terraform-cost-predictor/issues"
-Documentation = "https://github.com/your-org/terraform-cost-predictor/blob/main/docs/usage.md"
+Homepage = "https://github.com/AbdullahbinAmin/terraform-cost-predictor"
+Repository = "https://github.com/AbdullahbinAmin/terraform-cost-predictor"
+Issues = "https://github.com/AbdullahbinAmin/terraform-cost-predictor/issues"
+Documentation = "https://github.com/AbdullahbinAmin/terraform-cost-predictor/blob/main/docs/usage.md"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -60,6 +60,8 @@ line-length = 100
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+pythonpath = ["."]
+
 
 [tool.mypy]
 python_version = "3.11"

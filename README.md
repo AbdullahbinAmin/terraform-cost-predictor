@@ -1,6 +1,6 @@
 # 🔮 Terraform Cost Predictor
 
-[![CI](https://github.com/your-org/terraform-cost-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/terraform-cost-predictor/actions)
+[![CI](https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -38,7 +38,7 @@ pip install terraform-cost-predictor
 Or install from source:
 
 ```bash
-git clone https://github.com/your-org/terraform-cost-predictor
+git clone https://github.com/AbdullahbinAmin/terraform-cost-predictor
 cd terraform-cost-predictor
 pip install -e .
 ```
@@ -253,7 +253,7 @@ terraform-cost-predictor/
 ### Setup
 
 ```bash
-git clone https://github.com/your-org/terraform-cost-predictor
+git clone https://github.com/AbdullahbinAmin/terraform-cost-predictor
 cd terraform-cost-predictor
 pip install -e ".[dev]"
 ```
