@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,11 +28,11 @@ class HistoryEntry:
     run_id: str
     timestamp: str
     plan_hash: str
-    label: str                  # user-provided label (e.g., "staging", "production")
+    label: str  # user-provided label (e.g., "staging", "production")
     total_cost: float
     currency: str
     resource_count: int
-    resources_json: str         # JSON blob of all resource costs
+    resources_json: str  # JSON blob of all resource costs
     plan_path: str
 
 
@@ -106,9 +106,7 @@ class HistoryStore:
         run_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc).isoformat()
         if not plan_hash:
-            plan_hash = hashlib.md5(
-                json.dumps(resources, sort_keys=True).encode()
-            ).hexdigest()[:12]
+            plan_hash = hashlib.md5(json.dumps(resources, sort_keys=True).encode()).hexdigest()[:12]
 
         resources_json = json.dumps(resources, default=str)
 
@@ -121,8 +119,15 @@ class HistoryStore:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    run_id, timestamp, plan_hash, label, total_cost, currency,
-                    len(resources), resources_json, plan_path,
+                    run_id,
+                    timestamp,
+                    plan_hash,
+                    label,
+                    total_cost,
+                    currency,
+                    len(resources),
+                    resources_json,
+                    plan_path,
                 ),
             )
             conn.commit()
@@ -138,9 +143,7 @@ class HistoryStore:
                     (label,),
                 ).fetchone()
             else:
-                row = conn.execute(
-                    "SELECT * FROM runs ORDER BY timestamp DESC LIMIT 1"
-                ).fetchone()
+                row = conn.execute("SELECT * FROM runs ORDER BY timestamp DESC LIMIT 1").fetchone()
 
         if row is None:
             return None
@@ -149,9 +152,7 @@ class HistoryStore:
     def get_run_by_id(self, run_id: str) -> dict[str, Any] | None:
         """Get a specific run by its run_id."""
         with self._get_conn() as conn:
-            row = conn.execute(
-                "SELECT * FROM runs WHERE run_id = ?", (run_id,)
-            ).fetchone()
+            row = conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
         if row is None:
             return None
         return self._row_to_dict(row)

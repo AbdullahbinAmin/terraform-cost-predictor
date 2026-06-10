@@ -8,7 +8,7 @@ resource changes with their configuration attributes.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -52,16 +52,16 @@ SUPPORTED_RESOURCE_TYPES = {
 class ResourceChange:
     """Represents a single resource change from the Terraform plan."""
 
-    address: str                    # e.g., "aws_instance.web"
-    resource_type: str              # e.g., "aws_instance"
-    name: str                       # e.g., "web"
-    module: str                     # e.g., "" or "module.vpc"
-    provider: str                   # e.g., "registry.terraform.io/hashicorp/aws"
-    action: str                     # create | delete | update | no-op | replace
-    before: dict[str, Any]          # config before change (for updates)
-    after: dict[str, Any]           # config after change (desired state)
-    is_supported: bool = False      # whether cost estimation is supported
-    region: str = "us-east-1"       # AWS region
+    address: str  # e.g., "aws_instance.web"
+    resource_type: str  # e.g., "aws_instance"
+    name: str  # e.g., "web"
+    module: str  # e.g., "" or "module.vpc"
+    provider: str  # e.g., "registry.terraform.io/hashicorp/aws"
+    action: str  # create | delete | update | no-op | replace
+    before: dict[str, Any]  # config before change (for updates)
+    after: dict[str, Any]  # config after change (desired state)
+    is_supported: bool = False  # whether cost estimation is supported
+    region: str = "us-east-1"  # AWS region
 
 
 @dataclass
@@ -72,7 +72,7 @@ class TerraformPlan:
     terraform_version: str
     variables: dict[str, Any]
     resource_changes: list[ResourceChange]
-    raw: dict[str, Any]             # full raw plan for debugging
+    raw: dict[str, Any]  # full raw plan for debugging
 
     @property
     def created_resources(self) -> list[ResourceChange]:
@@ -102,6 +102,7 @@ class TerraformPlan:
 
 class PlanParseError(Exception):
     """Raised when the Terraform plan JSON cannot be parsed."""
+
     pass
 
 
@@ -123,7 +124,7 @@ class PlanParser:
             raise PlanParseError(f"Plan file not found: {path}")
         if not p.suffix == ".json":
             raise PlanParseError(
-                f"Expected a JSON file. Run: terraform show -json tfplan > plan.json"
+                "Expected a JSON file. Run: terraform show -json tfplan > plan.json"
             )
 
         try:

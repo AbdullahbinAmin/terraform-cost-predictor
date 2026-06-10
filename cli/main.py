@@ -10,7 +10,6 @@ Commands:
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -20,8 +19,7 @@ from rich.console import Console
 app = typer.Typer(
     name="cost-predict",
     help=(
-        "🔮 Terraform Cost Predictor — Estimate AWS costs from Terraform plans "
-        "before deployment."
+        "🔮 Terraform Cost Predictor — Estimate AWS costs from Terraform plans before deployment."
     ),
     add_completion=False,
     rich_markup_mode="rich",
@@ -38,6 +36,7 @@ __version__ = "1.0.0"
 
 # ─── predict command ──────────────────────────────────────────────────────────
 
+
 @app.command(name="predict")
 def predict(
     plan_file: Path = typer.Argument(
@@ -49,7 +48,8 @@ def predict(
     ),
     budget: Optional[Path] = typer.Option(
         None,
-        "--budget", "-b",
+        "--budget",
+        "-b",
         help="Path to budget.yaml config for cost limit enforcement.",
         exists=True,
         readable=True,
@@ -57,32 +57,38 @@ def predict(
     ),
     environment: str = typer.Option(
         "default",
-        "--env", "-e",
+        "--env",
+        "-e",
         help="Environment name for budget policy lookup (e.g., production, staging).",
     ),
     output: str = typer.Option(
         "table",
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Output format: table | json | html",
     ),
     output_file: Optional[Path] = typer.Option(
         None,
-        "--output-file", "-f",
+        "--output-file",
+        "-f",
         help="Save output to a file (auto-detected format from extension).",
     ),
     save: bool = typer.Option(
         False,
-        "--save", "-s",
+        "--save",
+        "-s",
         help="Save this run to history for future comparisons.",
     ),
     compare: bool = typer.Option(
         False,
-        "--compare", "-c",
+        "--compare",
+        "-c",
         help="Compare with the most recent saved run.",
     ),
     label: str = typer.Option(
         "",
-        "--label", "-l",
+        "--label",
+        "-l",
         help="Label for this run (used for grouping history, e.g., 'staging').",
     ),
     no_color: bool = typer.Option(
@@ -110,7 +116,7 @@ def predict(
       [green]cost-predict predict plan.json[/green]
     """
     # Lazy imports to keep startup fast
-    from internal.parser.plan_parser import PlanParser, PlanParseError
+    from internal.parser.plan_parser import PlanParser
     from internal.pricing.aws_pricing import PricingEngine
     from internal.budget.budget_checker import BudgetChecker
     from internal.report.reporter import Reporter
@@ -145,25 +151,32 @@ def predict(
             cost_estimate = engine.estimate(resource.resource_type, config, resource.address)
         else:
             from internal.pricing.aws_pricing import CostEstimate
+
             cost_estimate = CostEstimate(
                 resource_address=resource.address,
                 resource_type=resource.resource_type,
                 monthly_cost=0.0,
                 confidence="unknown" if not resource.is_supported else "high",
-                notes=["No-op — no cost change" if resource.action == "no-op" else "Unsupported resource type"],
+                notes=[
+                    "No-op — no cost change"
+                    if resource.action == "no-op"
+                    else "Unsupported resource type"
+                ],
                 is_estimated=resource.is_supported,
             )
 
         entry = {
-            "address":       resource.address,
+            "address": resource.address,
             "resource_type": resource.resource_type,
-            "action":        resource.action,
-            "monthly_cost":  cost_estimate.monthly_cost if resource.action != "delete" else cost_estimate.monthly_cost,
-            "confidence":    cost_estimate.confidence,
-            "is_supported":  resource.is_supported,
-            "breakdown":     cost_estimate.breakdown,
-            "notes":         cost_estimate.notes,
-            "config":        config,
+            "action": resource.action,
+            "monthly_cost": cost_estimate.monthly_cost
+            if resource.action != "delete"
+            else cost_estimate.monthly_cost,
+            "confidence": cost_estimate.confidence,
+            "is_supported": resource.is_supported,
+            "breakdown": cost_estimate.breakdown,
+            "notes": cost_estimate.notes,
+            "config": config,
         }
         estimates.append(entry)
 
@@ -242,6 +255,7 @@ def _save_run(
     plan_path: str,
 ) -> str:
     from storage.history import HistoryStore
+
     store = HistoryStore()
     resources = [
         {
@@ -262,6 +276,7 @@ def _save_run(
 
 # ─── history commands ─────────────────────────────────────────────────────────
 
+
 @history_app.command(name="list")
 def history_list(
     label: str = typer.Option("", "--label", "-l", help="Filter by label."),
@@ -278,9 +293,7 @@ def history_list(
 
 @history_app.command(name="clear")
 def history_clear(
-    confirm: bool = typer.Option(
-        False, "--yes", "-y", help="Skip confirmation prompt."
-    ),
+    confirm: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompt."),
 ) -> None:
     """[bold red]Clear all cost prediction history.[/bold red]"""
     from storage.history import HistoryStore
@@ -294,12 +307,11 @@ def history_clear(
 
 # ─── version command ──────────────────────────────────────────────────────────
 
+
 @app.command(name="version")
 def version_cmd() -> None:
     """[bold]Show the version and exit.[/bold]"""
-    console.print(
-        f"[bold cyan]Terraform Cost Predictor[/bold cyan] v{__version__}"
-    )
+    console.print(f"[bold cyan]Terraform Cost Predictor[/bold cyan] v{__version__}")
 
 
 # ─── Entry point ──────────────────────────────────────────────────────────────

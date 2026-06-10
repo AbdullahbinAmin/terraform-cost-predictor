@@ -9,10 +9,8 @@ from internal.parser.plan_parser import (
     PlanParseError,
     ACTION_CREATE,
     ACTION_DELETE,
-    ACTION_UPDATE,
     ACTION_NO_OP,
     ACTION_REPLACE,
-    SUPPORTED_RESOURCE_TYPES,
 )
 
 
@@ -80,9 +78,7 @@ SAMPLE_PLAN = {
         "provider_config": {
             "aws": {
                 "name": "aws",
-                "expressions": {
-                    "region": {"constant_value": "us-east-1"}
-                },
+                "expressions": {"region": {"constant_value": "us-east-1"}},
             }
         }
     },

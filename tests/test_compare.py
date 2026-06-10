@@ -1,7 +1,6 @@
 """Tests for the cost comparator."""
 
-import pytest
-from internal.compare.comparator import CostComparator, ResourceDiff
+from internal.compare.comparator import CostComparator
 
 
 CURRENT_RESOURCES = [
@@ -34,7 +33,7 @@ PREVIOUS_RUN = {
         {
             "address": "aws_instance.web",
             "resource_type": "aws_instance",
-            "monthly_cost": 22.77,          # was t3.small
+            "monthly_cost": 22.77,  # was t3.small
             "config": {"instance_type": "t3.small"},
         },
         {

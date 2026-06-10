@@ -11,7 +11,6 @@ import io
 import json
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 from rich import box
@@ -22,7 +21,6 @@ from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 
-from internal.pricing.aws_pricing import CostEstimate
 from internal.compare.comparator import CostComparison, ResourceDiff
 from internal.budget.budget_checker import BudgetResult
 
@@ -44,26 +42,26 @@ console = _make_console()
 # ─── Confidence Color Mapping ─────────────────────────────────────────────────
 
 CONFIDENCE_COLORS = {
-    "high":    "green",
-    "medium":  "yellow",
-    "low":     "orange3",
+    "high": "green",
+    "medium": "yellow",
+    "low": "orange3",
     "unknown": "red",
 }
 
 ACTION_COLORS = {
-    "create":  "bold green",
-    "delete":  "bold red",
-    "update":  "bold yellow",
+    "create": "bold green",
+    "delete": "bold red",
+    "update": "bold yellow",
     "replace": "bold magenta",
-    "no-op":   "dim",
+    "no-op": "dim",
 }
 
 ACTION_SYMBOLS = {
-    "create":  "✚",
-    "delete":  "✖",
-    "update":  "~",
+    "create": "✚",
+    "delete": "✖",
+    "update": "~",
     "replace": "↺",
-    "no-op":   "·",
+    "no-op": "·",
 }
 
 
@@ -159,9 +157,7 @@ class Reporter:
         # Summary footer
         self._print_summary(total_cost, len(estimates), unsupported_count)
 
-    def _print_summary(
-        self, total: float, total_resources: int, unsupported: int
-    ) -> None:
+    def _print_summary(self, total: float, total_resources: int, unsupported: int) -> None:
         """Print the summary panel."""
         supported = total_resources - unsupported
         summary_text = (
@@ -179,8 +175,15 @@ class Reporter:
         self._console.print(
             Columns(
                 [
-                    Panel(summary_text, title="[bold]Summary[/bold]", border_style="blue", expand=True),
-                    Panel(cost_text, title="[bold]Total Cost[/bold]", border_style="bright_green", expand=True),
+                    Panel(
+                        summary_text, title="[bold]Summary[/bold]", border_style="blue", expand=True
+                    ),
+                    Panel(
+                        cost_text,
+                        title="[bold]Total Cost[/bold]",
+                        border_style="bright_green",
+                        expand=True,
+                    ),
                 ],
                 equal=True,
             )
@@ -193,8 +196,16 @@ class Reporter:
         self._console.print()
 
         # High-level summary
-        delta_str = f"+${comparison.delta:,.2f}" if comparison.delta >= 0 else f"-${abs(comparison.delta):,.2f}"
-        delta_pct_str = f"+{comparison.delta_percent:.1f}%" if comparison.delta_percent >= 0 else f"{comparison.delta_percent:.1f}%"
+        delta_str = (
+            f"+${comparison.delta:,.2f}"
+            if comparison.delta >= 0
+            else f"-${abs(comparison.delta):,.2f}"
+        )
+        delta_pct_str = (
+            f"+{comparison.delta_percent:.1f}%"
+            if comparison.delta_percent >= 0
+            else f"{comparison.delta_percent:.1f}%"
+        )
         delta_color = "red" if comparison.delta > 0 else "green"
 
         self._console.print(
@@ -215,7 +226,9 @@ class Reporter:
             self._console.print("[bold]>> Cost changed because:[/bold]")
             for driver in comparison.top_drivers:
                 sym, color = self._driver_style(driver)
-                delta_str = f"+${driver.delta:,.2f}" if driver.delta >= 0 else f"-${abs(driver.delta):,.2f}"
+                delta_str = (
+                    f"+${driver.delta:,.2f}" if driver.delta >= 0 else f"-${abs(driver.delta):,.2f}"
+                )
                 self._console.print(
                     f"  [{color}]{sym}[/{color}] [cyan]{driver.address}[/cyan]  "
                     f"[{color}][bold]{delta_str}/mo[/bold][/{color}]"
@@ -241,8 +254,7 @@ class Reporter:
         diff_table.add_column("Delta", justify="right", width=14)
 
         all_diffs = (
-            comparison.added + comparison.removed +
-            comparison.changed + comparison.unchanged
+            comparison.added + comparison.removed + comparison.changed + comparison.unchanged
         )
         for diff in all_diffs:
             sym, color = self._driver_style(diff)
@@ -279,7 +291,7 @@ class Reporter:
                     f"([{bar_color}]{usage:.1f}%[/{bar_color}])"
                 )
             else:
-                self._console.print(f"  [green]✓ No budget policy configured.[/green]")
+                self._console.print("  [green]✓ No budget policy configured.[/green]")
 
         for warning in result.warnings:
             self._console.print(
@@ -311,7 +323,9 @@ class Reporter:
     def print_history_table(self, runs: list[dict[str, Any]]) -> None:
         """Print the cost history table."""
         if not runs:
-            self._console.print("[dim]No history found. Run with [bold]--save[/bold] to record runs.[/dim]")
+            self._console.print(
+                "[dim]No history found. Run with [bold]--save[/bold] to record runs.[/dim]"
+            )
             return
 
         table = Table(
@@ -392,16 +406,18 @@ class Reporter:
             action = e.get("action", "create")
             cost = e.get("monthly_cost", 0.0)
             color_cls = {
-                "create": "create", "delete": "delete",
-                "update": "update", "replace": "replace",
+                "create": "create",
+                "delete": "delete",
+                "update": "update",
+                "replace": "replace",
             }.get(action, "")
             cost_str = f"${cost:,.2f}" if e.get("is_supported") else "—"
             rows += (
                 f"<tr class='{color_cls}'>"
-                f"<td>{ACTION_SYMBOLS.get(action,'?')} {action}</td>"
-                f"<td>{e.get('address','')}</td>"
-                f"<td>{e.get('resource_type','')}</td>"
-                f"<td class='conf-{e.get('confidence','unknown')}'>{e.get('confidence','')}</td>"
+                f"<td>{ACTION_SYMBOLS.get(action, '?')} {action}</td>"
+                f"<td>{e.get('address', '')}</td>"
+                f"<td>{e.get('resource_type', '')}</td>"
+                f"<td class='conf-{e.get('confidence', 'unknown')}'>{e.get('confidence', '')}</td>"
                 f"<td class='cost'>{cost_str}</td>"
                 f"</tr>\n"
             )
@@ -417,10 +433,10 @@ class Reporter:
 
     def _driver_style(self, diff: ResourceDiff) -> tuple[str, str]:
         status_map = {
-            "added":     ("✚", "green"),
-            "removed":   ("✖", "red"),
-            "changed":   ("~", "yellow"),
-            "replaced":  ("↺", "magenta"),
+            "added": ("✚", "green"),
+            "removed": ("✖", "red"),
+            "changed": ("~", "yellow"),
+            "replaced": ("↺", "magenta"),
             "unchanged": ("·", "dim"),
         }
         return status_map.get(diff.status, ("?", "white"))

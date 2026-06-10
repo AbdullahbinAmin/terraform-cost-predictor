@@ -17,11 +17,11 @@ class ResourceDiff:
 
     address: str
     resource_type: str
-    status: str             # added | removed | changed | unchanged | replaced
+    status: str  # added | removed | changed | unchanged | replaced
     previous_cost: float
     current_cost: float
-    delta: float            # current - previous (positive = more expensive)
-    reason: str             # human-readable explanation
+    delta: float  # current - previous (positive = more expensive)
+    reason: str  # human-readable explanation
     config_changes: list[str] = field(default_factory=list)
 
 
@@ -169,9 +169,7 @@ class CostComparator:
         current_total = sum(r.get("monthly_cost", 0.0) for r in current_resources)
         previous_total = previous_run.get("total_cost", 0.0)
         delta = current_total - previous_total
-        delta_percent = (
-            (delta / previous_total * 100) if previous_total != 0 else 0.0
-        )
+        delta_percent = (delta / previous_total * 100) if previous_total != 0 else 0.0
 
         return CostComparison(
             previous_total=round(previous_total, 2),
@@ -199,9 +197,7 @@ class CostComparator:
         cost = resource.get("monthly_cost", 0.0)
         return f"{rt} removed (-${cost:.2f}/mo savings)"
 
-    def _describe_changed(
-        self, prev: dict, curr: dict, config_changes: list[str]
-    ) -> str:
+    def _describe_changed(self, prev: dict, curr: dict, config_changes: list[str]) -> str:
         rt = curr.get("resource_type", "resource")
         delta = curr.get("monthly_cost", 0.0) - prev.get("monthly_cost", 0.0)
         sign = "+" if delta >= 0 else ""
@@ -244,19 +240,26 @@ class CostComparator:
 
         return "\n".join(parts)
 
-    def _detect_config_changes(
-        self, prev_config: dict, curr_config: dict
-    ) -> list[str]:
+    def _detect_config_changes(self, prev_config: dict, curr_config: dict) -> list[str]:
         """Detect key attribute changes between two resource configs."""
         changes = []
         all_keys = set(prev_config) | set(curr_config)
 
         # Focus on attributes that affect cost
         cost_relevant_attrs = {
-            "instance_type", "instance_class", "node_type",
-            "allocated_storage", "size", "volume_size", "volume_type",
-            "type", "multi_az", "num_cache_nodes", "shard_count",
-            "memory_size", "load_balancer_type",
+            "instance_type",
+            "instance_class",
+            "node_type",
+            "allocated_storage",
+            "size",
+            "volume_size",
+            "volume_type",
+            "type",
+            "multi_az",
+            "num_cache_nodes",
+            "shard_count",
+            "memory_size",
+            "load_balancer_type",
         }
 
         for key in sorted(all_keys):

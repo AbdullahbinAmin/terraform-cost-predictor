@@ -1,7 +1,6 @@
 """Tests for the AWS pricing engine."""
 
-import pytest
-from internal.pricing.aws_pricing import PricingEngine, CostEstimate
+from internal.pricing.aws_pricing import PricingEngine
 
 
 class TestPricingEngine:
@@ -11,7 +10,9 @@ class TestPricingEngine:
     # ─── EC2 ──────────────────────────────────────────────────────────────────
 
     def test_ec2_known_instance_type(self):
-        result = self.engine.estimate("aws_instance", {"instance_type": "t3.medium"}, "aws_instance.web")
+        result = self.engine.estimate(
+            "aws_instance", {"instance_type": "t3.medium"}, "aws_instance.web"
+        )
         assert result.monthly_cost > 0
         assert result.confidence == "high"
         assert "ec2_instance" in result.breakdown
@@ -161,9 +162,7 @@ class TestPricingEngine:
         assert result.monthly_cost == 0.50
 
     def test_sqs_standard(self):
-        result = self.engine.estimate(
-            "aws_sqs_queue", {"fifo_queue": False}, "aws_sqs_queue.jobs"
-        )
+        result = self.engine.estimate("aws_sqs_queue", {"fifo_queue": False}, "aws_sqs_queue.jobs")
         assert result.monthly_cost > 0
 
     def test_sqs_fifo_more_expensive(self):

@@ -30,7 +30,7 @@ class CostEstimate:
     resource_type: str
     monthly_cost: float
     currency: str = "USD"
-    confidence: str = "medium"   # high | medium | low | unknown
+    confidence: str = "medium"  # high | medium | low | unknown
     breakdown: dict[str, float] = None  # component costs
     notes: list[str] = None
     is_estimated: bool = True
@@ -60,14 +60,15 @@ class PricingEngine:
     def _load_db(self) -> None:
         if not self._db_path.exists():
             raise FileNotFoundError(
-                f"Pricing database not found at {self._db_path}. "
-                "Please reinstall the package."
+                f"Pricing database not found at {self._db_path}. Please reinstall the package."
             )
         with open(self._db_path, encoding="utf-8") as f:
             self._db = json.load(f)
         logger.debug("Pricing DB loaded from %s", self._db_path)
 
-    def estimate(self, resource_type: str, config: dict[str, Any], address: str = "") -> CostEstimate:
+    def estimate(
+        self, resource_type: str, config: dict[str, Any], address: str = ""
+    ) -> CostEstimate:
         """
         Estimate the monthly cost for a resource.
 
@@ -93,29 +94,29 @@ class PricingEngine:
     def _get_handler(self, resource_type: str):
         """Return the appropriate handler method for a resource type."""
         handlers = {
-            "aws_instance":                     self._estimate_ec2,
-            "aws_db_instance":                  self._estimate_rds,
-            "aws_rds_cluster":                  self._estimate_rds_cluster,
-            "aws_lb":                           self._estimate_lb,
-            "aws_alb":                          self._estimate_lb,
-            "aws_nat_gateway":                  self._estimate_nat_gateway,
-            "aws_ebs_volume":                   self._estimate_ebs,
-            "aws_s3_bucket":                    self._estimate_s3,
-            "aws_elasticache_cluster":          self._estimate_elasticache,
+            "aws_instance": self._estimate_ec2,
+            "aws_db_instance": self._estimate_rds,
+            "aws_rds_cluster": self._estimate_rds_cluster,
+            "aws_lb": self._estimate_lb,
+            "aws_alb": self._estimate_lb,
+            "aws_nat_gateway": self._estimate_nat_gateway,
+            "aws_ebs_volume": self._estimate_ebs,
+            "aws_s3_bucket": self._estimate_s3,
+            "aws_elasticache_cluster": self._estimate_elasticache,
             "aws_elasticache_replication_group": self._estimate_elasticache,
-            "aws_lambda_function":              self._estimate_lambda,
-            "aws_eks_cluster":                  self._estimate_eks,
-            "aws_ecs_service":                  self._estimate_ecs,
-            "aws_cloudfront_distribution":      self._estimate_cloudfront,
-            "aws_elasticsearch_domain":         self._estimate_elasticsearch,
-            "aws_opensearch_domain":            self._estimate_elasticsearch,
-            "aws_kinesis_stream":               self._estimate_kinesis,
-            "aws_sqs_queue":                    self._estimate_sqs,
-            "aws_sns_topic":                    self._estimate_sns,
-            "aws_api_gateway_rest_api":         self._estimate_api_gateway,
-            "aws_api_gateway_v2_api":           self._estimate_api_gateway_v2,
-            "aws_wafv2_web_acl":                self._estimate_waf,
-            "aws_route53_zone":                 self._estimate_route53,
+            "aws_lambda_function": self._estimate_lambda,
+            "aws_eks_cluster": self._estimate_eks,
+            "aws_ecs_service": self._estimate_ecs,
+            "aws_cloudfront_distribution": self._estimate_cloudfront,
+            "aws_elasticsearch_domain": self._estimate_elasticsearch,
+            "aws_opensearch_domain": self._estimate_elasticsearch,
+            "aws_kinesis_stream": self._estimate_kinesis,
+            "aws_sqs_queue": self._estimate_sqs,
+            "aws_sns_topic": self._estimate_sns,
+            "aws_api_gateway_rest_api": self._estimate_api_gateway,
+            "aws_api_gateway_v2_api": self._estimate_api_gateway_v2,
+            "aws_wafv2_web_acl": self._estimate_waf,
+            "aws_route53_zone": self._estimate_route53,
         }
         return handlers.get(resource_type)
 
@@ -203,7 +204,10 @@ class PricingEngine:
             resource_type=resource_type,
             monthly_cost=round(monthly, 2),
             confidence="medium",
-            notes=[f"Aurora {engine}, instance: {instance_class}", "Storage billed per GB-month separately"],
+            notes=[
+                f"Aurora {engine}, instance: {instance_class}",
+                "Storage billed per GB-month separately",
+            ],
         )
 
     # ─── Load Balancer ────────────────────────────────────────────────────────
@@ -219,7 +223,10 @@ class PricingEngine:
             resource_type=resource_type,
             monthly_cost=round(monthly, 2),
             confidence="medium",
-            breakdown={"lb_hourly_base": pricing.get("monthly", 5.84), "lcu_estimate": round(monthly - pricing.get("monthly", 5.84), 2)},
+            breakdown={
+                "lb_hourly_base": pricing.get("monthly", 5.84),
+                "lcu_estimate": round(monthly - pricing.get("monthly", 5.84), 2),
+            },
             notes=[
                 f"Type: {lb_type}",
                 "LCU cost estimated at 1 LCU/hour average",
@@ -231,7 +238,9 @@ class PricingEngine:
     def _estimate_nat_gateway(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         db = self._db.get("aws_nat_gateway", {})
         base = db.get("monthly_base", 32.85)
-        data_cost = db.get("estimated_data_gb_per_month", 100) * db.get("data_processing_per_gb", 0.045)
+        data_cost = db.get("estimated_data_gb_per_month", 100) * db.get(
+            "data_processing_per_gb", 0.045
+        )
 
         return CostEstimate(
             resource_address=address,
@@ -266,7 +275,10 @@ class PricingEngine:
             resource_type=resource_type,
             monthly_cost=round(monthly, 2),
             confidence="high",
-            breakdown={"storage": round(float(size_gb) * pricing["per_gb_month"], 2), "iops": round(iops_cost, 2)},
+            breakdown={
+                "storage": round(float(size_gb) * pricing["per_gb_month"], 2),
+                "iops": round(iops_cost, 2),
+            },
             notes=[f"Volume type: {vol_type}, Size: {size_gb} GB"],
         )
 
@@ -343,7 +355,9 @@ class PricingEngine:
             resource_type=resource_type,
             monthly_cost=round(monthly, 2),
             confidence="low",
-            notes=["Fargate estimate: 0.25 vCPU, 0.5 GB, 24/7. Update task definition for accuracy."],
+            notes=[
+                "Fargate estimate: 0.25 vCPU, 0.5 GB, 24/7. Update task definition for accuracy."
+            ],
         )
 
     # ─── CloudFront ──────────────────────────────────────────────────────────
@@ -361,7 +375,9 @@ class PricingEngine:
 
     # ─── Elasticsearch / OpenSearch ──────────────────────────────────────────
 
-    def _estimate_elasticsearch(self, resource_type: str, config: dict, address: str) -> CostEstimate:
+    def _estimate_elasticsearch(
+        self, resource_type: str, config: dict, address: str
+    ) -> CostEstimate:
         db = self._db.get("aws_elasticsearch_domain", {})
         instance_type = config.get("instance_type") or config.get("cluster_config", {})
         if isinstance(instance_type, dict):
@@ -413,7 +429,10 @@ class PricingEngine:
             resource_type=resource_type,
             monthly_cost=round(monthly, 2),
             confidence="low",
-            notes=[f"Type: {'FIFO' if fifo else 'Standard'}", "Estimate: 1M requests/month (free tier excluded)"],
+            notes=[
+                f"Type: {'FIFO' if fifo else 'Standard'}",
+                "Estimate: 1M requests/month (free tier excluded)",
+            ],
         )
 
     # ─── SNS ─────────────────────────────────────────────────────────────────
@@ -442,7 +461,9 @@ class PricingEngine:
             notes=["REST API. Estimate: 1M API calls/month"],
         )
 
-    def _estimate_api_gateway_v2(self, resource_type: str, config: dict, address: str) -> CostEstimate:
+    def _estimate_api_gateway_v2(
+        self, resource_type: str, config: dict, address: str
+    ) -> CostEstimate:
         db = self._db.get("aws_api_gateway_v2_api", {})
         monthly = db.get("estimated_monthly", 1.0)
         return CostEstimate(

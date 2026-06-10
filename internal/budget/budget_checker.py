@@ -101,7 +101,6 @@ class BudgetChecker:
         # --- Global limit ---
         global_limit = budget_conf.get("monthly_limit")
         alert_threshold = budget_conf.get("alert_threshold", 0.8)
-        currency = budget_conf.get("currency", "USD")
 
         if global_limit is not None:
             result = self._check_limit(
