@@ -65,7 +65,7 @@ def predict(
         "table",
         "--output",
         "-o",
-        help="Output format: table | json | html",
+        help="Output format: table | json | html | infracost-json",
     ),
     output_file: Optional[Path] = typer.Option(
         None,
@@ -106,6 +106,11 @@ def predict(
         "--all",
         help="Include unchanged (no-op) resources in the output.",
     ),
+    refresh_pricing: bool = typer.Option(
+        False,
+        "--refresh-pricing",
+        help="Fetch live pricing via Cloud APIs (AWS). Azure/GCP try live by default.",
+    ),
 ) -> None:
     """
     [bold cyan]Estimate monthly AWS costs from a Terraform plan JSON file.[/bold cyan]
@@ -117,7 +122,7 @@ def predict(
     """
     # Lazy imports to keep startup fast
     from internal.parser.plan_parser import PlanParser
-    from internal.pricing.aws_pricing import PricingEngine
+    from internal.pricing.router import PricingRouter
     from internal.budget.budget_checker import BudgetChecker
     from internal.report.reporter import Reporter
     from internal.compare.comparator import CostComparator
@@ -139,7 +144,9 @@ def predict(
     )
 
     # 2. Estimate costs
-    engine = PricingEngine()
+    engine = PricingRouter()
+    if refresh_pricing:
+        engine.aws_engine.enable_live_pricing()
     estimates = []
 
     resources_to_show = plan.resource_changes if show_all else plan.relevant_changes
@@ -187,12 +194,20 @@ def predict(
         if e["action"] not in ("delete", "no-op") and e["is_supported"]
     )
 
-    # 3. Render output
     if output == "json":
         json_out = reporter.to_json(estimates, total_cost)
         if output_file:
             output_file.write_text(json_out, encoding="utf-8")
             console.print(f"[green]✓ JSON report saved to {output_file}[/green]")
+        else:
+            print(json_out)
+        return
+
+    elif output == "infracost-json":
+        json_out = reporter.to_infracost_json(estimates, total_cost)
+        if output_file:
+            output_file.write_text(json_out, encoding="utf-8")
+            console.print(f"[green]✓ Infracost-compatible JSON report saved to {output_file}[/green]")
         else:
             print(json_out)
         return

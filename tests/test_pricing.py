@@ -1,11 +1,11 @@
 """Tests for the AWS pricing engine."""
 
-from internal.pricing.aws_pricing import PricingEngine
+from internal.pricing.aws_pricing import AWSPricingEngine
 
 
-class TestPricingEngine:
+class TestAWSPricingEngine:
     def setup_method(self):
-        self.engine = PricingEngine()
+        self.engine = AWSPricingEngine()
 
     # ─── EC2 ──────────────────────────────────────────────────────────────────
 

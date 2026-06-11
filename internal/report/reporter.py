@@ -394,6 +394,66 @@ class Reporter:
             }
         return json.dumps(output, indent=2, default=str)
 
+    def to_infracost_json(self, estimates: list[dict], total_cost: float) -> str:
+        """Export the estimates to an Infracost v0.2 compatible JSON format."""
+        resources = []
+        supported_count = 0
+        unsupported_count = 0
+        
+        for e in estimates:
+            if e.get("is_supported"):
+                supported_count += 1
+            else:
+                unsupported_count += 1
+                
+            cost_components = []
+            for k, v in e.get("breakdown", {}).items():
+                cost_components.append({
+                    "name": k,
+                    "monthlyCost": str(v),
+                    "hourlyCost": str(v / 730.0)
+                })
+
+            resources.append({
+                "name": e.get("address", ""),
+                "resourceType": e.get("resource_type", ""),
+                "metadata": {},
+                "hourlyCost": str(e.get("monthly_cost", 0) / 730.0) if e.get("monthly_cost") else "0",
+                "monthlyCost": str(e.get("monthly_cost", 0)) if e.get("monthly_cost") else "0",
+                "costComponents": cost_components
+            })
+
+        infracost_data = {
+            "version": "0.2",
+            "metadata": {
+                "infracostCommand": "predict"
+            },
+            "timeGenerated": datetime.now(timezone.utc).isoformat(),
+            "projects": [
+                {
+                    "name": "default",
+                    "metadata": {},
+                    "pastBreakdown": { "totalMonthlyCost": "0" },
+                    "breakdown": {
+                        "totalMonthlyCost": str(total_cost),
+                        "resources": resources
+                    },
+                    "diff": { "totalMonthlyCost": str(total_cost) }
+                }
+            ],
+            "totalMonthlyCost": str(total_cost),
+            "pastTotalMonthlyCost": "0",
+            "diffTotalMonthlyCost": str(total_cost),
+            "summary": {
+                "totalDetectedResources": len(estimates),
+                "totalSupportedResources": supported_count,
+                "totalUnsupportedResources": unsupported_count,
+                "totalUsageBasedResources": 0,
+                "totalNoPriceResources": 0
+            }
+        }
+        return json.dumps(infracost_data, indent=2)
+
     def to_html(
         self,
         estimates: list[dict[str, Any]],

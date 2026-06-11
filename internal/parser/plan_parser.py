@@ -47,6 +47,31 @@ SUPPORTED_RESOURCE_TYPES = {
     "aws_route53_zone",
 }
 
+# Supported Azure resource types for cost estimation
+SUPPORTED_RESOURCE_TYPES_AZURE = {
+    "azurerm_linux_virtual_machine",
+    "azurerm_windows_virtual_machine",
+    "azurerm_managed_disk",
+    "azurerm_storage_account",
+    "azurerm_mssql_database",
+    "azurerm_postgresql_server",
+    "azurerm_mysql_server",
+    "azurerm_redis_cache",
+    "azurerm_kubernetes_cluster",
+    "azurerm_app_service",
+}
+
+# Supported GCP resource types for cost estimation
+SUPPORTED_RESOURCE_TYPES_GCP = {
+    "google_compute_instance",
+    "google_compute_disk",
+    "google_sql_database_instance",
+    "google_storage_bucket",
+    "google_redis_instance",
+    "google_container_cluster",
+    "google_cloud_run_service",
+}
+
 
 @dataclass
 class ResourceChange:
@@ -62,6 +87,7 @@ class ResourceChange:
     after: dict[str, Any]  # config after change (desired state)
     is_supported: bool = False  # whether cost estimation is supported
     region: str = "us-east-1"  # AWS region
+    cloud_provider: str = "aws"  # aws | azure | gcp
 
 
 @dataclass
@@ -211,7 +237,17 @@ class PlanParser:
         # Detect region from resource tags or provider
         region = self._extract_resource_region(after, default_region)
 
-        is_supported = resource_type in SUPPORTED_RESOURCE_TYPES
+        # Detect cloud provider
+        cloud_provider = "aws"
+        is_supported = False
+        if resource_type.startswith("azurerm_"):
+            cloud_provider = "azure"
+            is_supported = resource_type in SUPPORTED_RESOURCE_TYPES_AZURE
+        elif resource_type.startswith("google_"):
+            cloud_provider = "gcp"
+            is_supported = resource_type in SUPPORTED_RESOURCE_TYPES_GCP
+        else:
+            is_supported = resource_type in SUPPORTED_RESOURCE_TYPES
 
         return ResourceChange(
             address=address,
@@ -224,6 +260,7 @@ class PlanParser:
             after=after,
             is_supported=is_supported,
             region=region,
+            cloud_provider=cloud_provider,
         )
 
     def _resolve_action(self, actions: list[str]) -> str:

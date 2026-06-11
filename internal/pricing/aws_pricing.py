@@ -22,40 +22,33 @@ PRICING_DB_PATH = Path(__file__).parent / "pricing_db.json"
 HOURS_PER_MONTH = 730.0
 
 
-@dataclass
-class CostEstimate:
-    """Cost estimate for a single resource."""
-
-    resource_address: str
-    resource_type: str
-    monthly_cost: float
-    currency: str = "USD"
-    confidence: str = "medium"  # high | medium | low | unknown
-    breakdown: dict[str, float] = None  # component costs
-    notes: list[str] = None
-    is_estimated: bool = True
-
-    def __post_init__(self):
-        if self.breakdown is None:
-            self.breakdown = {}
-        if self.notes is None:
-            self.notes = []
-
-    @property
-    def formatted_cost(self) -> str:
-        return f"${self.monthly_cost:,.2f}"
+from internal.pricing.base import CloudPricingProvider, CostEstimate
 
 
-class PricingEngine:
+class AWSPricingEngine(CloudPricingProvider):
     """
-    Core pricing engine. Loads the pricing DB and estimates costs
+    AWS Core pricing engine. Loads the pricing DB and estimates costs
     for each ResourceChange.
     """
 
     def __init__(self, db_path: Path | None = None):
         self._db_path = db_path or PRICING_DB_PATH
         self._db: dict[str, Any] = {}
+        self._live_pricing_enabled = False
+        self._pricing_client = None
+        self._live_cache: dict[str, float] = {}
         self._load_db()
+
+    def enable_live_pricing(self) -> None:
+        """Enable fetching live prices via AWS Pricing API."""
+        try:
+            import boto3
+            self._pricing_client = boto3.client('pricing', region_name='us-east-1')
+            self._live_pricing_enabled = True
+            logger.info("AWS live pricing enabled via boto3.")
+        except Exception as e:
+            logger.warning(f"Failed to initialize AWS Pricing API: {e}")
+            self._live_pricing_enabled = False
 
     def _load_db(self) -> None:
         if not self._db_path.exists():
@@ -122,11 +115,61 @@ class PricingEngine:
 
     # ─── EC2 ──────────────────────────────────────────────────────────────────
 
+    def _fetch_live_ec2_price(self, instance_type: str) -> float | None:
+        if not self._live_pricing_enabled or not self._pricing_client:
+            return None
+        cache_key = f"ec2_{instance_type}"
+        if cache_key in self._live_cache:
+            return self._live_cache[cache_key]
+
+        try:
+            response = self._pricing_client.get_products(
+                ServiceCode='AmazonEC2',
+                Filters=[
+                    {'Type': 'TERM_MATCH', 'Field': 'instanceType', 'Value': instance_type},
+                    {'Type': 'TERM_MATCH', 'Field': 'operatingSystem', 'Value': 'Linux'},
+                    {'Type': 'TERM_MATCH', 'Field': 'preInstalledSw', 'Value': 'NA'},
+                    {'Type': 'TERM_MATCH', 'Field': 'tenancy', 'Value': 'Shared'},
+                    {'Type': 'TERM_MATCH', 'Field': 'capacitystatus', 'Value': 'Used'}
+                ],
+                MaxResults=1
+            )
+            price_list = response.get('PriceList', [])
+            if price_list:
+                price_data = json.loads(price_list[0])
+                terms = price_data.get('terms', {}).get('OnDemand', {})
+                if terms:
+                    term_key = list(terms.keys())[0]
+                    price_dimensions = terms[term_key].get('priceDimensions', {})
+                    if price_dimensions:
+                        dim_key = list(price_dimensions.keys())[0]
+                        price_per_unit = price_dimensions[dim_key].get('pricePerUnit', {}).get('USD')
+                        if price_per_unit is not None:
+                            monthly_price = float(price_per_unit) * HOURS_PER_MONTH
+                            self._live_cache[cache_key] = monthly_price
+                            return monthly_price
+        except Exception as e:
+            logger.debug(f"Live fetch failed for EC2 {instance_type}: {e}")
+        return None
+
     def _estimate_ec2(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         db = self._db.get("aws_instance", {})
         instance_type = config.get("instance_type", "t3.micro") or "t3.micro"
-        pricing = db.get(instance_type) or db.get("_default", {"monthly": 36.50})
-        monthly = pricing["monthly"]
+        
+        notes = []
+        monthly = None
+        
+        # Try live pricing first
+        if self._live_pricing_enabled:
+            monthly = self._fetch_live_ec2_price(instance_type)
+            if monthly is not None:
+                notes.append("Live price from AWS Pricing API")
+                
+        # Fallback to static DB
+        if monthly is None:
+            pricing = db.get(instance_type) or db.get("_default", {"monthly": 36.50})
+            monthly = pricing["monthly"]
+            notes.append("Price from static bundled DB")
 
         # EBS root volume — default 8 GB gp2
         root_block = config.get("root_block_device") or [{}]
@@ -139,7 +182,9 @@ class PricingEngine:
         ebs_cost = float(root_size_gb) * ebs_pricing["per_gb_month"]
 
         total = monthly + ebs_cost
-        confidence = "high" if instance_type in db else "medium"
+        confidence = "high" if (monthly and instance_type in db) else "medium"
+        notes.insert(0, f"Instance type: {instance_type}")
+        notes.insert(1, f"Root volume: {root_size_gb} GB {root_type}")
 
         return CostEstimate(
             resource_address=address,
@@ -147,10 +192,7 @@ class PricingEngine:
             monthly_cost=round(total, 2),
             confidence=confidence,
             breakdown={"ec2_instance": round(monthly, 2), "ebs_root_volume": round(ebs_cost, 2)},
-            notes=[
-                f"Instance type: {instance_type}",
-                f"Root volume: {root_size_gb} GB {root_type}",
-            ],
+            notes=notes,
         )
 
     # ─── RDS ──────────────────────────────────────────────────────────────────
