@@ -4,9 +4,9 @@
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> **Predict your AWS bill before you deploy.**
+> **Predict your cloud bill before you deploy.**
 
-Terraform Cost Predictor is an open-source CLI that analyzes Terraform plans, estimates cloud costs before deployment, compares infrastructure changes with previous runs, and enforces budget policies in CI/CD pipelines.
+Terraform Cost Predictor is an open-source CLI that analyzes Terraform plans, estimates cloud costs (AWS, Azure, GCP) before deployment, compares infrastructure changes with previous runs, and enforces budget policies in CI/CD pipelines.
 
 ---
 
@@ -20,10 +20,12 @@ Terraform Cost Predictor is an open-source CLI that analyzes Terraform plans, es
 | 🤖 **GitHub PR Comments** | Auto-comment cost analysis on pull requests |
 | 📊 **Multiple Outputs** | Table, JSON, and HTML report formats |
 | 🗄️ **History** | SQLite-backed history for cross-run comparisons |
-| 🔌 **Offline-first** | Bundled static pricing DB — no API keys required |
+| 🔌 **Offline-first & Live** | Bundled static pricing DB for offline speed, plus live API fetching (`boto3`) |
 
-**Supported AWS Resources (20+):**
-EC2, RDS, Aurora, ALB/NLB, NAT Gateway, EBS, S3, ElastiCache, Lambda, EKS, ECS/Fargate, CloudFront, OpenSearch, Kinesis, SQS, SNS, API Gateway, WAFv2, Route53
+**Supported Cloud Resources:**
+- **AWS (20+):** EC2, RDS, Aurora, ALB/NLB, NAT Gateway, EBS, S3, ElastiCache, Lambda, EKS, ECS/Fargate, CloudFront, OpenSearch, Kinesis, SQS, SNS, API Gateway, WAFv2, Route53
+- **Azure:** Virtual Machines, Managed Disks, Storage Accounts, SQL Databases, App Services, Kubernetes
+- **GCP:** Compute Engine, Persistent Disks, Cloud SQL, Cloud Storage, Cloud Run, GKE
 
 ---
 
@@ -93,6 +95,12 @@ cost-predict predict plan.json
 cost-predict predict plan.json
 ```
 
+### Live API Pricing (AWS, Azure, GCP)
+Fetch real-time costs directly from cloud pricing APIs for maximum accuracy:
+```bash
+cost-predict predict plan.json --refresh-pricing
+```
+
 ### Save Run to History
 
 ```bash
@@ -142,6 +150,14 @@ Exit code `1` is returned — blocking your CI/CD pipeline.
 ```bash
 cost-predict predict plan.json --output json
 cost-predict predict plan.json --output json --output-file report.json
+```
+
+### Infracost-Compatible Output
+
+Export metrics natively supported by CI/CD tools that use the Infracost v0.2 schema:
+
+```bash
+cost-predict predict plan.json --output infracost-json --output-file infracost-report.json
 ```
 
 ### HTML Report
@@ -281,10 +297,10 @@ cost-predict predict examples/sample_plan.json --output json
 - [x] **Phase 2**: Cost diff analysis with human-readable explanations
 - [x] **Phase 3**: Budget YAML enforcement with CI/CD exit codes
 - [x] **Phase 4**: GitHub Actions + PR comments
-- [ ] **Phase 5**: Azure pricing support
-- [ ] **Phase 6**: GCP pricing support
-- [ ] **Phase 7**: AWS Pricing API integration (live price refresh)
-- [ ] **Phase 8**: Infracost-compatible output format
+- [x] **Phase 5**: Azure pricing support
+- [x] **Phase 6**: GCP pricing support
+- [x] **Phase 7**: AWS Pricing API integration (live price refresh)
+- [x] **Phase 8**: Infracost-compatible output format
 
 ---
 
