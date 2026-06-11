@@ -9,9 +9,10 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from internal.pricing.base import CloudPricingProvider, CostEstimate
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +21,6 @@ PRICING_DB_PATH = Path(__file__).parent / "pricing_db.json"
 
 # Hours in a month (30.44 days average)
 HOURS_PER_MONTH = 730.0
-
-
-from internal.pricing.base import CloudPricingProvider, CostEstimate
 
 
 class AWSPricingEngine(CloudPricingProvider):
@@ -43,7 +41,8 @@ class AWSPricingEngine(CloudPricingProvider):
         """Enable fetching live prices via AWS Pricing API."""
         try:
             import boto3
-            self._pricing_client = boto3.client('pricing', region_name='us-east-1')
+
+            self._pricing_client = boto3.client("pricing", region_name="us-east-1")
             self._live_pricing_enabled = True
             logger.info("AWS live pricing enabled via boto3.")
         except Exception as e:
@@ -124,26 +123,28 @@ class AWSPricingEngine(CloudPricingProvider):
 
         try:
             response = self._pricing_client.get_products(
-                ServiceCode='AmazonEC2',
+                ServiceCode="AmazonEC2",
                 Filters=[
-                    {'Type': 'TERM_MATCH', 'Field': 'instanceType', 'Value': instance_type},
-                    {'Type': 'TERM_MATCH', 'Field': 'operatingSystem', 'Value': 'Linux'},
-                    {'Type': 'TERM_MATCH', 'Field': 'preInstalledSw', 'Value': 'NA'},
-                    {'Type': 'TERM_MATCH', 'Field': 'tenancy', 'Value': 'Shared'},
-                    {'Type': 'TERM_MATCH', 'Field': 'capacitystatus', 'Value': 'Used'}
+                    {"Type": "TERM_MATCH", "Field": "instanceType", "Value": instance_type},
+                    {"Type": "TERM_MATCH", "Field": "operatingSystem", "Value": "Linux"},
+                    {"Type": "TERM_MATCH", "Field": "preInstalledSw", "Value": "NA"},
+                    {"Type": "TERM_MATCH", "Field": "tenancy", "Value": "Shared"},
+                    {"Type": "TERM_MATCH", "Field": "capacitystatus", "Value": "Used"},
                 ],
-                MaxResults=1
+                MaxResults=1,
             )
-            price_list = response.get('PriceList', [])
+            price_list = response.get("PriceList", [])
             if price_list:
                 price_data = json.loads(price_list[0])
-                terms = price_data.get('terms', {}).get('OnDemand', {})
+                terms = price_data.get("terms", {}).get("OnDemand", {})
                 if terms:
                     term_key = list(terms.keys())[0]
-                    price_dimensions = terms[term_key].get('priceDimensions', {})
+                    price_dimensions = terms[term_key].get("priceDimensions", {})
                     if price_dimensions:
                         dim_key = list(price_dimensions.keys())[0]
-                        price_per_unit = price_dimensions[dim_key].get('pricePerUnit', {}).get('USD')
+                        price_per_unit = (
+                            price_dimensions[dim_key].get("pricePerUnit", {}).get("USD")
+                        )
                         if price_per_unit is not None:
                             monthly_price = float(price_per_unit) * HOURS_PER_MONTH
                             self._live_cache[cache_key] = monthly_price
@@ -155,16 +156,16 @@ class AWSPricingEngine(CloudPricingProvider):
     def _estimate_ec2(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         db = self._db.get("aws_instance", {})
         instance_type = config.get("instance_type", "t3.micro") or "t3.micro"
-        
+
         notes = []
         monthly = None
-        
+
         # Try live pricing first
         if self._live_pricing_enabled:
             monthly = self._fetch_live_ec2_price(instance_type)
             if monthly is not None:
                 notes.append("Live price from AWS Pricing API")
-                
+
         # Fallback to static DB
         if monthly is None:
             pricing = db.get(instance_type) or db.get("_default", {"monthly": 36.50})

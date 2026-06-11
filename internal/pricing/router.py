@@ -41,7 +41,7 @@ class PricingRouter(CloudPricingProvider):
             return self.azure_engine.estimate(resource_type, config, address)
         elif resource_type.startswith("google_"):
             return self.gcp_engine.estimate(resource_type, config, address)
-        
+
         # Fallback if unknown
         return CostEstimate(
             resource_address=address,

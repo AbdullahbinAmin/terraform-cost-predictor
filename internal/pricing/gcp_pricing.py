@@ -47,7 +47,7 @@ class GCPPricingEngine(CloudPricingProvider):
         self, resource_type: str, config: dict[str, Any], address: str = ""
     ) -> CostEstimate:
         self._load_pricing()
-        
+
         handler = self._get_handler(resource_type)
         if handler is None:
             return CostEstimate(
@@ -72,14 +72,14 @@ class GCPPricingEngine(CloudPricingProvider):
         machine_type = config.get("machine_type", "e2-medium")
         zone = config.get("zone", "us-central1-a")
         region = zone.rsplit("-", 1)[0] if "-" in zone else "us-central1"
-        
+
         # Example lookup key in the undocumented API
         key = f"CP-COMPUTEENGINE-VMIMAGE-{machine_type.upper()}"
         pricing = self._db.get(key, {})
-        
+
         # Look for region price, fallback to us
         hourly_price = pricing.get(region, pricing.get("us", 0.0))
-        
+
         confidence = "high"
         if not hourly_price:
             hourly_price = 0.033  # fallback e2-medium roughly
@@ -101,7 +101,7 @@ class GCPPricingEngine(CloudPricingProvider):
     def _estimate_disk(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         disk_type = config.get("type", "pd-standard")
         size_gb = config.get("size") or 100
-        
+
         # Rough estimates
         price_per_gb = 0.17 if "ssd" in disk_type else 0.04
         monthly = float(size_gb) * price_per_gb
@@ -117,9 +117,9 @@ class GCPPricingEngine(CloudPricingProvider):
     def _estimate_sql(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         settings = config.get("settings", [{}])[0] if config.get("settings") else {}
         tier = settings.get("tier", "db-f1-micro")
-        
+
         monthly = 9.00 if "micro" in tier else 50.00
-        
+
         return CostEstimate(
             resource_address=address,
             resource_type=resource_type,
@@ -131,7 +131,7 @@ class GCPPricingEngine(CloudPricingProvider):
     def _estimate_storage(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         storage_class = config.get("storage_class", "STANDARD")
         monthly = 2.00
-        
+
         return CostEstimate(
             resource_address=address,
             resource_type=resource_type,

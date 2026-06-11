@@ -8,7 +8,6 @@ for Azure resources.
 from __future__ import annotations
 
 import logging
-import urllib.parse
 from typing import Any
 
 import requests
@@ -36,7 +35,7 @@ class AzurePricingEngine(CloudPricingProvider):
         # Use USD and standard Retail price
         query = f"currencyCode='USD'&$filter=priceType eq 'Consumption' and {filters}"
         url = f"{AZURE_RETAIL_PRICES_API}?{query}"
-        
+
         try:
             resp = requests.get(url, timeout=10)
             resp.raise_for_status()
@@ -49,7 +48,7 @@ class AzurePricingEngine(CloudPricingProvider):
                 return retail_price
         except Exception as e:
             logger.warning(f"Failed to fetch Azure pricing for '{filters}': {e}")
-        
+
         return None
 
     def estimate(
@@ -78,17 +77,14 @@ class AzurePricingEngine(CloudPricingProvider):
     def _estimate_vm(self, resource_type: str, config: dict, address: str) -> CostEstimate:
         size = config.get("size", "Standard_B1s")
         location = config.get("location", "eastus")
-        
-        is_windows = "windows" in resource_type.lower()
-        os_filter = "Windows" if is_windows else "Linux"
-        
+
         # Example filter: armRegionName eq 'eastus' and armSkuName eq 'Standard_B1s' and productName eq 'Virtual Machines'
         # Azure's API is notoriously finicky. Let's try a broad filter.
         f = f"armRegionName eq '{location}' and armSkuName eq '{size}' and serviceName eq 'Virtual Machines'"
-        
+
         hourly_price = self._fetch_price(f)
         confidence = "high"
-        
+
         if hourly_price is None:
             # Fallback
             hourly_price = 0.05  # $36/mo default
@@ -107,10 +103,11 @@ class AzurePricingEngine(CloudPricingProvider):
             notes=notes,
         )
 
-    def _estimate_managed_disk(self, resource_type: str, config: dict, address: str) -> CostEstimate:
+    def _estimate_managed_disk(
+        self, resource_type: str, config: dict, address: str
+    ) -> CostEstimate:
         storage_type = config.get("storage_account_type", "Standard_LRS")
         size_gb = config.get("disk_size_gb") or 30
-        location = config.get("location", "eastus")
 
         # Estimate roughly $0.05 per GB for standard, $0.15 for Premium
         is_premium = "Premium" in storage_type
@@ -125,12 +122,14 @@ class AzurePricingEngine(CloudPricingProvider):
             notes=[f"Type: {storage_type}", f"Size: {size_gb} GB"],
         )
 
-    def _estimate_storage_account(self, resource_type: str, config: dict, address: str) -> CostEstimate:
+    def _estimate_storage_account(
+        self, resource_type: str, config: dict, address: str
+    ) -> CostEstimate:
         tier = config.get("account_tier", "Standard")
         repl = config.get("account_replication_type", "LRS")
-        
-        monthly = 2.00 # Base estimate for a few GBs
-        
+
+        monthly = 2.00  # Base estimate for a few GBs
+
         return CostEstimate(
             resource_address=address,
             resource_type=resource_type,

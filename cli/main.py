@@ -207,7 +207,9 @@ def predict(
         json_out = reporter.to_infracost_json(estimates, total_cost)
         if output_file:
             output_file.write_text(json_out, encoding="utf-8")
-            console.print(f"[green]✓ Infracost-compatible JSON report saved to {output_file}[/green]")
+            console.print(
+                f"[green]✓ Infracost-compatible JSON report saved to {output_file}[/green]"
+            )
         else:
             print(json_out)
         return
