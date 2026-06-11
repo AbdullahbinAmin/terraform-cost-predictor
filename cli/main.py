@@ -31,7 +31,7 @@ app.add_typer(history_app, name="history")
 
 console = Console()
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 # ─── predict command ──────────────────────────────────────────────────────────
