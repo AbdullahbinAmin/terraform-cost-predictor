@@ -1,316 +1,144 @@
-# 🔮 Terraform Cost Predictor
+<div align="center">
+  <h1>🔮 Terraform Cost Predictor</h1>
+  <p><strong>Predict your cloud bill before you deploy.</strong></p>
 
-[![CI](https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+  <p>
+    <a href="https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions"><img src="https://github.com/AbdullahbinAmin/terraform-cost-predictor/actions/workflows/ci.yml/badge.svg" alt="CI Status"></a>
+    <a href="https://python.org"><img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python Version"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+  </p>
+</div>
 
-> **Predict your cloud bill before you deploy.**
-
-Terraform Cost Predictor is an open-source CLI that analyzes Terraform plans, estimates cloud costs (AWS, Azure, GCP) before deployment, compares infrastructure changes with previous runs, and enforces budget policies in CI/CD pipelines.
+Terraform Cost Predictor is a lightning-fast, open-source CLI tool that parses Terraform plans to estimate cloud costs across **AWS, Azure, and GCP**. It empowers DevOps and FinOps teams to catch expensive infrastructure changes *before* they are provisioned, enforce budget policies directly in CI/CD pipelines, and export standard Infracost-compatible metrics.
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 💰 **Cost Estimation** | Estimate monthly AWS costs from `terraform show -json` output |
-| 📈 **Cost Diff** | Compare current plan vs previous run — see exactly *why* costs changed |
-| 🛡️ **Budget Enforcement** | Block CI/CD pipelines that exceed budget via `exit 1` |
-| 🤖 **GitHub PR Comments** | Auto-comment cost analysis on pull requests |
-| 📊 **Multiple Outputs** | Table, JSON, and HTML report formats |
-| 🗄️ **History** | SQLite-backed history for cross-run comparisons |
-| 🔌 **Offline-first & Live** | Bundled static pricing DB for offline speed, plus live API fetching (`boto3`) |
-
-**Supported Cloud Resources:**
-- **AWS (20+):** EC2, RDS, Aurora, ALB/NLB, NAT Gateway, EBS, S3, ElastiCache, Lambda, EKS, ECS/Fargate, CloudFront, OpenSearch, Kinesis, SQS, SNS, API Gateway, WAFv2, Route53
-- **Azure:** Virtual Machines, Managed Disks, Storage Accounts, SQL Databases, App Services, Kubernetes
-- **GCP:** Compute Engine, Persistent Disks, Cloud SQL, Cloud Storage, Cloud Run, GKE
+- 💰 **Multi-Cloud Cost Estimation:** Automatically analyzes `terraform show -json` output for AWS, Azure, and Google Cloud Platform resources.
+- ⚡ **Live & Offline Pricing:** Uses a bundled, lightning-fast offline database by default, with an option to fetch 100% accurate live prices directly from cloud APIs (`--refresh-pricing`).
+- 📈 **Diff Analysis:** Compares the current plan against previous runs to highlight exactly *why* your costs changed (e.g., "t3.small → t3.medium").
+- 🛡️ **Budget Guardrails:** Block CI/CD pipelines via `exit 1` if the estimated cost exceeds your defined YAML budget policies.
+- 🤖 **CI/CD Ready:** Auto-comment cost breakdowns on GitHub PRs and export data natively to Infracost v0.2 JSON format for seamless ecosystem integration.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-### Install
+Install globally via `pip`:
 
 ```bash
 pip install terraform-cost-predictor
 ```
 
-Or install from source:
-
-```bash
-git clone https://github.com/AbdullahbinAmin/terraform-cost-predictor
-cd terraform-cost-predictor
-pip install -e .
-```
-
-### Generate a Terraform Plan
-
-```bash
-terraform plan -out=tfplan
-terraform show -json tfplan > plan.json
-```
-
-### Predict Costs
-
-```bash
-cost-predict predict plan.json
-```
-
-**Output:**
-
-```
-╭──────────────────────────────────────────────────────╮
-│ 🔮 Terraform Cost Predictor                          │
-│   Analyzing plan: plan.json                          │
-╰──────────────────────────────────────────────────────╯
-
-           💰 Estimated Monthly Costs
-┌────────┬────────────────────────────────┬──────────────────────┬────────────┬───────────────┐
-│ Action │ Resource                       │ Type                 │ Confidence │  Monthly Cost │
-├────────┼────────────────────────────────┼──────────────────────┼────────────┼───────────────┤
-│ ✚ create│ aws_instance.web_server       │ aws_instance         │   [high]   │       $32.79 │
-│ ✚ create│ aws_db_instance.main_postgres │ aws_db_instance      │   [high]   │       $14.71 │
-│ ✚ create│ aws_lb.application_lb         │ aws_lb               │  [medium]  │       $18.00 │
-│ ✚ create│ aws_nat_gateway.main          │ aws_nat_gateway      │  [medium]  │       $32.85 │
-│ ✚ create│ aws_elasticache_cluster.cache │ aws_elasticache_clus │   [high]   │       $48.91 │
-│ ✚ create│ aws_lambda_function.handler   │ aws_lambda_function  │   [low]    │        $5.00 │
-└────────┴────────────────────────────────┴──────────────────────┴────────────┴───────────────┘
-
- 📊 Summary                  │  💵 Total
- Total Resources:    13      │  Estimated Monthly Cost
- Priced Resources:   11      │
- Unsupported:        2       │  $152.26 USD / month
-                             │  ≈ $1,827.12 / year
-```
+*Requires Python 3.11+*
 
 ---
 
 ## 📖 Usage
 
-### Basic Cost Estimation
+### 1. Generate a Terraform Plan
+Export your plan to JSON format:
+```bash
+terraform plan -out=tfplan
+terraform show -json tfplan > plan.json
+```
 
+### 2. Predict Costs
+Run the predictor against your plan file:
 ```bash
 cost-predict predict plan.json
 ```
 
-### Live API Pricing (AWS, Azure, GCP)
-Fetch real-time costs directly from cloud pricing APIs for maximum accuracy:
+**Need 100% accurate, real-time prices?** Use the live API fetcher:
 ```bash
 cost-predict predict plan.json --refresh-pricing
 ```
 
-### Save Run to History
-
+### 3. Track Changes over Time
+Save your run to local history to compare future plans:
 ```bash
-cost-predict predict plan.json --save --label staging
+# Save the current state
+cost-predict predict plan.json --save --label production
+
+# Next time, compare against the saved state
+cost-predict predict new_plan.json --compare --label production
 ```
 
-### Compare with Previous Run
-
+### 4. Export for CI/CD
+Export the analysis to an Infracost-compatible JSON file for ingestion by other DevOps tools:
 ```bash
-cost-predict predict plan.json --save --compare --label staging
-```
-
-**Output (The Killer Feature™):**
-
-```
-📌 Cost changed because:
-  ✚ aws_nat_gateway.main         +$32.85/mo    ← New NAT Gateway added
-  ~ aws_instance.web             +$14.50/mo    ← Instance type: t3.small → t3.medium
-  ✚ aws_db_instance.replica      +$12.41/mo    ← New RDS replica added
-  ✖ aws_lb.old_lb                -$18.00/mo    ← Load balancer removed
-```
-
-### Budget Enforcement (CI/CD)
-
-```bash
-cost-predict predict plan.json --budget configs/budget.yaml
-```
-
-If cost exceeds the limit:
-
-```
-╭────────────────────────────────────────────────────────────╮
-│ Budget Policy: global                                       │
-│                                                             │
-│ ✖  BUDGET EXCEEDED — PIPELINE BLOCKED                      │
-│                                                             │
-│ Estimated cost:  $285.00                                    │
-│ Budget limit:    $200.00                                    │
-│ Overage:         +$85.00 (+42.5%)                          │
-╰────────────────────────────────────────────────────────────╯
-```
-
-Exit code `1` is returned — blocking your CI/CD pipeline.
-
-### JSON Output
-
-```bash
-cost-predict predict plan.json --output json
-cost-predict predict plan.json --output json --output-file report.json
-```
-
-### Infracost-Compatible Output
-
-Export metrics natively supported by CI/CD tools that use the Infracost v0.2 schema:
-
-```bash
-cost-predict predict plan.json --output infracost-json --output-file infracost-report.json
-```
-
-### HTML Report
-
-```bash
-cost-predict predict plan.json --output html --output-file report.html
-```
-
-### View History
-
-```bash
-cost-predict history list
-cost-predict history list --label production
-cost-predict history clear
+cost-predict predict plan.json --output infracost-json --output-file costs.json
 ```
 
 ---
 
-## 🛡️ Budget Configuration
+## 🛡️ Budget Enforcement
 
-Create `budget.yaml`:
+Ensure developers never accidentally blow the cloud budget. Create a `budget.yaml`:
 
 ```yaml
 budget:
-  monthly_limit: 300       # Global limit in USD
+  monthly_limit: 500       # Global limit in USD
   currency: USD
   alert_threshold: 0.8     # Warn at 80% of limit
 
   environments:
     production:
-      monthly_limit: 500
+      monthly_limit: 1000
     staging:
-      monthly_limit: 100
-    development:
-      monthly_limit: 50
+      monthly_limit: 200
 ```
 
-Use it:
-
+Run the predictor with your budget policy. If the cost exceeds the threshold, the tool exits with code `1`, blocking the pipeline:
 ```bash
-cost-predict predict plan.json --budget budget.yaml --env production
+cost-predict predict plan.json --budget budget.yaml --env staging
 ```
 
 ---
 
 ## 🤖 GitHub Actions Integration
 
-Add `.github/workflows/terraform-cost.yml` to your repository (see the bundled workflow file) to automatically:
+Automate cost prediction on every pull request. Add this workflow to `.github/workflows/cost-analysis.yml`:
 
-1. Run cost analysis on every PR touching `.tf` files
-2. Post a cost breakdown as a PR comment
-3. Block merge if the budget is exceeded
+```yaml
+name: Cost Analysis
+on: [pull_request]
 
-### Example PR Comment
+jobs:
+  cost-predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-```markdown
-## 🔮 Terraform Cost Analysis
+      - name: Generate Plan
+        run: |
+          terraform init
+          terraform plan -out=tfplan
+          terraform show -json tfplan > plan.json
 
-**Estimated Monthly Cost: $185.00 USD**
+      - name: Install Cost Predictor
+        run: pip install terraform-cost-predictor
 
-| Action | Resource | Type | Monthly Cost |
-|--------|----------|------|-------------|
-| ✚ create | `aws_instance.web` | `aws_instance` | $30.37 |
-| ✚ create | `aws_nat_gateway.main` | `aws_nat_gateway` | $32.85 |
-
-### 📈 Cost Change vs Previous Run
-- Previous: **$120.00**
-- Current: **$185.00**
-- Delta: **+$65.00** (+54.2%)
-
-**Top Cost Drivers:**
-- `aws_nat_gateway.main`: +$32.85/mo (Added)
-- `aws_instance.web`: +$18.30/mo (t3.micro → t3.medium)
+      - name: Run Cost Analysis
+        run: cost-predict predict plan.json --budget configs/budget.yaml
 ```
 
 ---
 
-## 📁 Project Structure
+## 🤝 Contributing
 
-```
-terraform-cost-predictor/
-├── cmd/
-│   └── main.py                    # Typer CLI entry point
-├── internal/
-│   ├── parser/plan_parser.py      # Terraform plan JSON parser
-│   ├── pricing/
-│   │   ├── aws_pricing.py         # Pricing engine (20+ resource types)
-│   │   └── pricing_db.json        # Bundled static pricing database
-│   ├── budget/budget_checker.py   # YAML budget policy enforcement
-│   ├── report/reporter.py         # Rich terminal + JSON/HTML output
-│   └── compare/comparator.py      # Cost diff analysis engine
-├── storage/history.py             # SQLite history store
-├── examples/
-│   ├── sample_plan.json           # Example Terraform plan JSON
-│   └── budget.yaml                # Example budget config
-├── configs/budget.yaml            # Default budget policy
-├── tests/                         # Pytest test suite (60+ tests)
-├── .github/workflows/
-│   ├── ci.yml                     # CI with matrix testing
-│   └── terraform-cost.yml         # PR cost analysis workflow
-├── pyproject.toml                 # Package config
-└── README.md
-```
+We welcome issues and pull requests! Whether you're adding support for new Terraform resources, improving the pricing logic, or expanding the CLI, your contributions are appreciated. 
 
----
-
-## 🔬 Development
-
-### Setup
-
-```bash
-git clone https://github.com/AbdullahbinAmin/terraform-cost-predictor
-cd terraform-cost-predictor
-pip install -e ".[dev]"
-```
-
-### Run Tests
-
-```bash
-pytest tests/ -v
-pytest tests/ -v --cov=. --cov-report=term-missing
-```
-
-### Run Against Sample Plan
-
-```bash
-cost-predict predict examples/sample_plan.json
-cost-predict predict examples/sample_plan.json --budget examples/budget.yaml
-cost-predict predict examples/sample_plan.json --output json
-```
-
----
-
-## 🗺️ Roadmap
-
-- [x] **Phase 1**: Terraform plan parsing + AWS cost estimation
-- [x] **Phase 2**: Cost diff analysis with human-readable explanations
-- [x] **Phase 3**: Budget YAML enforcement with CI/CD exit codes
-- [x] **Phase 4**: GitHub Actions + PR comments
-- [x] **Phase 5**: Azure pricing support
-- [x] **Phase 6**: GCP pricing support
-- [x] **Phase 7**: AWS Pricing API integration (live price refresh)
-- [x] **Phase 8**: Infracost-compatible output format
-
----
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE)
-
----
-
-## 🙏 Contributing
-
-Contributions welcome! Please open an issue or submit a PR.
-Adding new AWS resource types is especially appreciated — see `internal/pricing/` for the pattern.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
